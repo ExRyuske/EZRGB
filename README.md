@@ -2,6 +2,7 @@
 <img src="./preview.png">
 
 ##### USED:
+* [cx_Freeze](https://github.com/marcelotduarte/cx_Freeze)
 * [PySide](https://wiki.qt.io/Qt_for_Python)
 * [PySimpleGUI](https://github.com/PySimpleGUI/PySimpleGUI)
 * [python-yeelight](https://gitlab.com/stavros/python-yeelight)
