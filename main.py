@@ -52,7 +52,7 @@ def main():
         ],
     ]
 
-    window = Sg.Window("ELGUI", layout, element_justification="center", resizable=False)
+    window = Sg.Window("EGUI", layout, element_justification="center", resizable=False)
 
     while True:
         event, values = window.read()

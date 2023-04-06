@@ -1,3 +1,3 @@
-PySide6==6.4.2
+PySide6==6.5.0
 PySimpleGUIQt6==0.36.0
 yeelight==0.7.10
