@@ -1,85 +1,91 @@
-import os.path
-
-import PySimpleGUIQt as Sg
-from yeelight import Bulb
+import PySimpleGUI as sg
+from modules.yeelight import *
 
 
 def main():
-    Sg.theme("Dark")
+    sg.theme("Dark")
 
-    if not os.path.isfile("ip.txt"):
-        with open("ip.txt", "w") as f:
-            f.close()
-    with open("ip.txt", "r") as f:
-        ip = f.read()
-        bulb = Bulb(ip)
+    layout = [ #yeelight_layout = [
+        [
+            sg.InputText(default_text=ip, size=(23), key="ip"),
+            sg.InputText(change_submits=True, key="ColorText", visible=False),
+        ],
+        [
+            sg.Button("Connect"),
+            sg.Button("On/Off"),
+            sg.ColorChooserButton("Color", target="ColorText", key="ColorButton"),
+        ],
+        [
+            sg.Slider(
+                range=(0, 100),
+                default_value=100,
+                orientation="horizontal",
+                disable_number_display=True,
+                change_submits=True,
+                size=(18.3, 20),
+                key="BrightnessSlider",
+            )
+        ],
+        [
+            sg.Text("Brightness:", pad=((6, 0),(0, 0))),
+            sg.Text("100", pad=((0, 21),(0, 0)), key="BrightnessText"),
+            sg.Button("Apply", key="BrightnessApply"),
+        ],
+        [
+            sg.Slider(
+                range=(1700, 6500),
+                default_value=6500,
+                orientation="horizontal",
+                disable_number_display=True,
+                change_submits=True,
+                size=(18.3, 20),
+                key="TemperatureSlider",
+            )
+        ],
+        [
+            sg.Text("Temperature:", pad=((6, 0),(0, 0))),
+            sg.Text("6500", pad=((0, 4),(0, 0)), key="TemperatureText"),
+            sg.Button("Apply", key="TemperatureApply"),
+        ],
+    ]
+    """
+    test_layout = [[sg.Text("In progress...")]]
 
     layout = [
         [
-            Sg.InputText(default_text=ip),
-            Sg.InputText(change_submits=True, key="ColorA", visible=False),
-        ],
-        [
-            Sg.Button("Connect"),
-            Sg.Button("On/Off"),
-            Sg.ColorChooserButton("Color", target="ColorA"),
-        ],
-        [
-            Sg.Slider(
-                range=(0, 100),
-                orientation="horizontal",
-                change_submits=True,
-                key="Brightness",
+            sg.TabGroup(
+                [[sg.Tab("Yeelight", yeelight_layout), sg.Tab("TEST", test_layout)]]
             )
-        ],
-        [
-            Sg.Text("Brightness:"),
-            Sg.Text("null", key="BrightnessText"),
-            Sg.Button("Apply", key="BrightnessApply"),
-        ],
-        [
-            Sg.Slider(
-                range=(1700, 6500),
-                orientation="horizontal",
-                change_submits=True,
-                key="Temperature",
-            )
-        ],
-        [
-            Sg.Text("Temperature:"),
-            Sg.Text("null", key="TemperatureText"),
-            Sg.Button("Apply", key="TemperatureApply"),
         ],
     ]
-
-    window = Sg.Window("EGUI", layout, element_justification="center", resizable=False)
+    """
+    window = sg.Window("EZRGB", layout, element_justification="left", resizable=False)
 
     while True:
         event, values = window.read()
-        if event == Sg.WIN_CLOSED:
+        if event == sg.WIN_CLOSED:
             break
-        window.Element("BrightnessText").Update(values["Brightness"])
-        window.Element("TemperatureText").Update(values["Temperature"])
         try:
             if event == "Connect":
-                ip = values[0]
-                with open("ip.txt", "w") as f:
-                    f.write(ip)
-                bulb = Bulb(ip)
+                yeelight_connect(values["ip"])
+
             if event == "On/Off":
-                bulb.toggle()
-            if event == "ColorA":
-                color = values["ColorA"]
-                rgb = [int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)]
-                if rgb[0] == 0 and rgb[1] == 0 and rgb[2] == 0:
-                    rgb = [255, 255, 255]
-                bulb.set_rgb(*rgb)
+                yeelight_toggle()
+
+            if event == "ColorText":
+                yeelight_color(values["ColorText"])
+
             if event == "BrightnessApply":
-                bulb.set_brightness(values["Brightness"])
+                yeelight_brightness(values["BrightnessSlider"])
+
             if event == "TemperatureApply":
-                bulb.set_color_temp(values["Temperature"])
+                yeelight_temperature(values["TemperatureSlider"])
         except Exception as e:
-            Sg.Popup(str("Check IP or Connection"), str(e))
+            sg.Popup(str(e))
+
+        window.Element("BrightnessText").Update("{:.0f}".format(values["BrightnessSlider"]).rstrip("."))
+        window.Element("TemperatureText").Update("{:.0f}".format(values["TemperatureSlider"]).rstrip("."))
+
     window.close()
 
 
