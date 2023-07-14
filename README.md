@@ -15,5 +15,6 @@
 
 ## Credits
 
-- [PySimpleGUI](https://github.com/PySimpleGUI/PySimpleGUI)
+- [Black](https://github.com/psf/black)
+- [Dear PyGui](https://github.com/hoffstadt/DearPyGui)
 - [python-yeelight](https://gitlab.com/stavros/python-yeelight)
