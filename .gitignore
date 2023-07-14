@@ -1,1 +1,6 @@
 .vscode/launch.json
+modules/__pycache__/yeelight.cpython-310.pyc
+RC.py
+test.py
+modules/settings.py
+file.json

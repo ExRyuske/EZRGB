@@ -1,93 +1,81 @@
-import PySimpleGUI as sg
+import dearpygui.dearpygui as dpg
 from modules.yeelight import *
 
 
-def main():
-    sg.theme("Dark")
+def connect():
+    ip_value = dpg.get_value("ip")
+    yeelight_connect(ip_value)
 
-    layout = [ #yeelight_layout = [
-        [
-            sg.InputText(default_text=ip, size=(23), key="ip"),
-            sg.InputText(change_submits=True, key="ColorText", visible=False),
-        ],
-        [
-            sg.Button("Connect"),
-            sg.Button("On/Off"),
-            sg.ColorChooserButton("Color", target="ColorText", key="ColorButton"),
-        ],
-        [
-            sg.Slider(
-                range=(0, 100),
+
+def color():
+    color_value = [int(value) for value in dpg.get_value("color")[:3]]
+    yeelight_color(color_value)
+
+
+def brightness():
+    brightness_value = dpg.get_value("brightness")
+    yeelight_brightness(brightness_value)
+
+
+def temperature():
+    temperature_value = dpg.get_value("temperature")
+    yeelight_temperature(temperature_value)
+
+
+dpg.create_context()
+
+with dpg.window(tag="main"):
+    with dpg.group(horizontal=False):
+        dpg.add_input_text(tag="ip", width=164, default_value=ip)
+        with dpg.group(horizontal=True):
+            dpg.add_button(label="Connect", callback=connect)
+            dpg.add_button(label="On/Off", callback=yeelight_toggle)
+        dpg.add_separator()
+        with dpg.group(horizontal=True):
+            dpg.add_color_edit(
+                default_value=(255, 255, 255),
+                tag="color",
+                width=113,
+                no_alpha=True,
+                no_picker=True,
+                no_tooltip=True,
+            )
+            dpg.add_button(label="Apply", callback=color)
+        dpg.add_separator()
+        dpg.add_text("Brightness")
+        with dpg.group(horizontal=True):
+            dpg.add_slider_int(
+                tag="brightness",
+                width=113,
                 default_value=100,
-                orientation="horizontal",
-                disable_number_display=True,
-                change_submits=True,
-                size=(18.3, 20),
-                key="BrightnessSlider",
+                min_value=0,
+                max_value=100,
             )
-        ],
-        [
-            sg.Text("Brightness:", pad=((6, 0),(0, 0))),
-            sg.Text("100", pad=((0, 21),(0, 0)), key="BrightnessText"),
-            sg.Button("Apply", key="BrightnessApply"),
-        ],
-        [
-            sg.Slider(
-                range=(1700, 6500),
+            dpg.add_button(label="Apply", callback=brightness)
+        dpg.add_separator()
+        dpg.add_text("Temperature")
+        with dpg.group(horizontal=True):
+            dpg.add_slider_int(
+                tag="temperature",
+                width=113,
                 default_value=6500,
-                orientation="horizontal",
-                disable_number_display=True,
-                change_submits=True,
-                size=(18.3, 20),
-                key="TemperatureSlider",
+                min_value=1700,
+                max_value=6500,
             )
-        ],
-        [
-            sg.Text("Temperature:", pad=((6, 0),(0, 0))),
-            sg.Text("6500", pad=((0, 4),(0, 0)), key="TemperatureText"),
-            sg.Button("Apply", key="TemperatureApply"),
-        ],
-    ]
-    """
-    test_layout = [[sg.Text("In progress...")]]
-
-    layout = [
-        [
-            sg.TabGroup(
-                [[sg.Tab("Yeelight", yeelight_layout), sg.Tab("TEST", test_layout)]]
-            )
-        ],
-    ]
-    """
-    window = sg.Window("EZRGB", layout, element_justification="left", resizable=False)
-
-    while True:
-        event, values = window.read()
-        if event == sg.WIN_CLOSED:
-            break
-        try:
-            if event == "Connect":
-                yeelight_connect(values["ip"])
-
-            if event == "On/Off":
-                yeelight_toggle()
-
-            if event == "ColorText":
-                yeelight_color(values["ColorText"])
-
-            if event == "BrightnessApply":
-                yeelight_brightness(values["BrightnessSlider"])
-
-            if event == "TemperatureApply":
-                yeelight_temperature(values["TemperatureSlider"])
-        except Exception as e:
-            sg.Popup(str(e))
-
-        window.Element("BrightnessText").Update("{:.0f}".format(values["BrightnessSlider"]).rstrip("."))
-        window.Element("TemperatureText").Update("{:.0f}".format(values["TemperatureSlider"]).rstrip("."))
-
-    window.close()
+            dpg.add_button(label="Apply", callback=temperature)
 
 
-if __name__ == "__main__":
-    main()
+dpg.create_viewport(
+    title="SimpleRGB",
+    large_icon="src/SimpleRGB.ico",
+    width=196,
+    height=224,
+    min_width=0,
+    min_height=0,
+    resizable=False,
+)
+dpg.setup_dearpygui()
+dpg.show_viewport()
+dpg.set_primary_window("main", True)
+dpg.start_dearpygui()
+dpg.destroy_context()
